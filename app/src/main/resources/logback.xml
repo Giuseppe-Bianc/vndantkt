@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- Default logback configuration provided for import -->
+
+<configuration>
+    <property name="PID" value="${PID:-${pid}}"/>
+
+    <!-- Define the custom converter for color highlighting -->
+    <conversionRule conversionWord="clr" class="org.dersbian.vndantkt.CHighlightingCompositeConverter"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- Define a property for the PID -->
+        <encoder>
+            <pattern>
+                %clr(%date{STRICT}){faint} %clr(%level) %magenta(%property{PID}) [%thread] %cyan(%-30.40logger{29}): %msg%n%ex
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Corrected root logger level to DEBUG -->
+    <root level="TRACE">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

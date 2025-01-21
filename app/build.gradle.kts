@@ -11,6 +11,7 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+    antlr
 }
 
 repositories {
@@ -29,6 +30,10 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    antlr("org.antlr:antlr4:4.13.2")
+    implementation(libs.slf4j.api)
+    implementation(libs.logback.classic)
+    implementation(libs.logback.core)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -40,10 +45,40 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.AppKt"
+    mainClass = "org.dersbian.vndantkt.AppKt"
 }
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks {
+    javadoc {
+        options.encoding = "UTF-8"
+    }
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+    compileTestJava {
+        options.encoding = "UTF-8"
+    }
+    generateGrammarSource {
+        arguments = arguments + listOf("-visitor")
+    }
+    compileKotlin {
+        dependsOn(generateGrammarSource)
+    }
+    compileTestKotlin {
+        dependsOn(generateTestGrammarSource)
+    }
+    jar {
+        manifest.attributes(Pair("Main-Class", application.mainClass))
+        val dependencies = configurations
+            .runtimeClasspath
+            .get()
+            .map(::zipTree) // OR .map { zipTree(it) }
+        from(dependencies)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
 }
